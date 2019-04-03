@@ -1,4 +1,4 @@
-#include "Bank.h"
+	#include "Bank.h"
 
 CBank::CBank()
 {
@@ -15,6 +15,27 @@ CBankClient* CBank::CreateClient()
 	return client;
 }
 
+std::vector<CBankClient> CBank::GetClients()
+{
+	return m_clients;
+}
+
+int CBank::GetClientBalance(int clientId)
+{
+	return clientInfo[clientId];
+}
+
+void CBank::SetClientBalance(int clientId, int balance)
+{
+	auto it = clientInfo.find(clientId);
+	if (it == clientInfo.end()) 
+	{
+		clientInfo.emplace(clientId, balance);
+		return;
+	}
+
+	it->second += balance;
+}
 
 void CBank::UpdateClientBalance(CBankClient &client, int value)
 {
@@ -23,6 +44,7 @@ void CBank::UpdateClientBalance(CBankClient &client, int value)
 	
 	SomeLongOperations();
 	totalBalance += value;
+	SetClientBalance(client.GetId(), value);
 
 	std::cout
 		<< "Client " << client.GetId() << " updates his balance with " << value
@@ -51,5 +73,5 @@ void CBank::SetTotalBalance(int value)
 
 void CBank::SomeLongOperations()
 {
-	// TODO
+	Sleep(1000);
 }

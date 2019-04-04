@@ -4,10 +4,20 @@
 
 using namespace std;
 
+void ShowInstractions()
+{
+	cout << "PP2.exe countClient syncPrimitive" << endl;
+	cout << "Count clients more one" << endl;
+	cout << "Sync primitives: criticalSection or mutex" << endl;
+	cout << "-----------------------" << endl;
+}
+
 int main(int argc, char *argv[])
 {
 	int clientCount = 2;
 	string syncPrimitive = "";
+
+	ShowInstractions();
 
 	if (argc != 3)
 	{

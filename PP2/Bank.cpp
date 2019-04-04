@@ -1,11 +1,12 @@
 	#include "Bank.h"
 
-CBank::CBank()
+CBank::CBank(std::string syncPrimitive)
 {
 	m_clients = std::vector<CBankClient>();
 	m_totalBalance = 0;
+	m_syncPrimitive = syncPrimitives(atoi(syncPrimitive.c_str() + 1));
+	InitializeCriticalSection(&CritacalSectionBankCalculate);
 }
-
 
 CBankClient* CBank::CreateClient()
 {
@@ -15,9 +16,38 @@ CBankClient* CBank::CreateClient()
 	return client;
 }
 
+CBank::~CBank() 
+{
+	DeleteCriticalSection(&CritacalSectionBankCalculate);
+} 
+
 std::vector<CBankClient> CBank::GetClients()
 {
 	return m_clients;
+}
+
+void CBank::EnableSync() 
+{
+	if (CBank::m_syncPrimitive == syncPrimitives::mutex)
+	{
+		MutexBankCalculate.lock();
+	}
+	else if (CBank::m_syncPrimitive == syncPrimitives::criticalSection)
+	{
+		EnterCriticalSection(&CritacalSectionBankCalculate);
+	}
+}
+
+void CBank::DisableSync() 
+{
+	if (CBank::m_syncPrimitive == syncPrimitives::mutex)
+	{
+		MutexBankCalculate.unlock();
+	}
+	else if (CBank::m_syncPrimitive == syncPrimitives::criticalSection)
+	{
+		LeaveCriticalSection(&CritacalSectionBankCalculate);
+	}
 }
 
 int CBank::GetClientBalance(int clientId)
@@ -39,6 +69,7 @@ void CBank::SetClientBalance(int clientId, int balance)
 
 void CBank::UpdateClientBalance(CBankClient &client, int value)
 {
+	CBank::EnableSync();
 	int totalBalance = GetTotalBalance();
 	std::cout << "Client " << client.GetId() << " initiates reading total balance. Total = " << totalBalance << "." << std::endl;
 	
@@ -57,14 +88,13 @@ void CBank::UpdateClientBalance(CBankClient &client, int value)
 	}
 
 	SetTotalBalance(totalBalance);
+	CBank::DisableSync();
 }
-
 
 int CBank::GetTotalBalance()
 {
 	return m_totalBalance;
 }
-
 
 void CBank::SetTotalBalance(int value)
 {

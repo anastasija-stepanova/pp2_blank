@@ -7,13 +7,18 @@ using namespace std;
 int main(int argc, char *argv[])
 {
 	int clientCount = 2;
+	string syncPrimitive = "";
 
-	if (argc == 2)
+	if (argc != 3)
 	{
-		clientCount = atoi(argv[1]);
+		cout << "PP2.exe countClient syncPrimitive" << endl;
+		return 1;
 	}
 
-	CBank* bank = new CBank();
+	clientCount = atoi(argv[1]);
+	syncPrimitive = atoi(argv[2]);
+
+	CBank* bank = new CBank(syncPrimitive);
 
 	for (int i = 0; i < clientCount; i++) 
 	{
